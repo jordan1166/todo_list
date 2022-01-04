@@ -40,7 +40,13 @@ function deleteCheck(event) {
   const item = event.target;
   // Delete todo
   if (item.classList[0] === "trash-button") {
-    item.parentElement.remove();
+    const todo = item.parentElement;
+    // Animation
+    todo.classList.add("fall");
+    // Wait until animation ends to remove todo list item
+    todo.addEventListener("transitionend", function () {
+      todo.remove();
+    });
   }
 
   // Mark tasks as completed
