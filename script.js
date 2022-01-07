@@ -11,7 +11,7 @@ todoList.addEventListener("click", deleteCheck);
 filterOption.addEventListener("click", filterTodo);
 
 // Functions
-function creatTodoListItem(text, saveToLocalStorage = true) {
+function createTodoListItem(text, saveToLocalStorage = true) {
   // Todo div
   const todoDiv = document.createElement("div");
   todoDiv.classList.add("todo");
@@ -41,7 +41,8 @@ function creatTodoListItem(text, saveToLocalStorage = true) {
 function addToDo(event) {
   // prevent form from submitting
   event.preventDefault();
-  creatTodoListItem(todoInput.value);
+  //Create todo list item with user input value
+  createTodoListItem(todoInput.value);
   // Clear todo input value
   todoInput.value = "";
 }
@@ -54,6 +55,7 @@ function deleteCheck(event) {
     const todo = item.parentElement;
     // Animation
     todo.classList.add("fall");
+    removeLocalTodos(todo);
     // Wait until animation ends to remove todo list item
     todo.addEventListener("transitionend", function () {
       todo.remove();
@@ -92,19 +94,22 @@ function filterTodo(event) {
   });
 }
 
+function checkLocalStorage() {
+  //Check if todo list is already in local storage
+  //If todo is not already in local storage, return an empty array
+  if (localStorage.getItem("todos") === null) {
+    return [];
+  } else {
+    //If todo list already exists in local storage, parse the JSON object into an array and return it
+    return JSON.parse(localStorage.getItem("todos"));
+  }
+}
+
 //When a todo is added to the list, also save it to local storage
 //Local and session storage use JSON
 function saveLocalTodos(todo) {
-  //Check if todo list is already in local storage
-  let todos;
-  //If todo is not already in local storage, assign an empty array to todos
-  if (localStorage.getItem("todos") === null) {
-    todos = [];
-  } else {
-    //If todos already exists in local storage, parse the JSON object into an array and assign it to todos
-    todos = JSON.parse(localStorage.getItem("todos"));
-  }
   //Add the new todo list item to the todos array
+  let todos = checkLocalStorage();
   todos.push(todo);
   //Then push todo array to local storage
   localStorage.setItem("todos", JSON.stringify(todos));
@@ -112,16 +117,20 @@ function saveLocalTodos(todo) {
 
 function getTodos() {
   //Check if todo list is already in local storage
-  let todos;
-  //If todo is not already in local storage, assign an empty array to todos
-  if (localStorage.getItem("todos") === null) {
-    todos = [];
-  } else {
-    //If todos already exists in local storage, parse the JSON object into an array and assign it to todos
-    todos = JSON.parse(localStorage.getItem("todos"));
-  }
+  let todos = checkLocalStorage();
   todos.forEach(function (todo) {
     //Recreate todo list items from local storage and present them on screen
-    creatTodoListItem(todo, false);
+    createTodoListItem(todo, false);
   });
+}
+
+function removeLocalTodos(todo) {
+  // Check if todo list is already in local storage
+  let todos = checkLocalStorage();
+  //Get the index of the todo list item that is to be removed
+  const index = todos.indexOf(todo.textContent);
+  //Remove that todo item from the list
+  todos.splice(index, 1);
+  //Update todo list in local storage
+  localStorage.setItem("todos", JSON.stringify(todos));
 }
