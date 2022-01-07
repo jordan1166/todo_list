@@ -4,23 +4,26 @@ const todoButton = document.querySelector(".todo-button");
 const todoList = document.querySelector(".todo-list");
 const filterOption = document.querySelector(".filter-todo");
 
-// Even listeners
+// Event listeners
+document.addEventListener("DOMContentLoaded", getTodos);
 todoButton.addEventListener("click", addToDo);
 todoList.addEventListener("click", deleteCheck);
 filterOption.addEventListener("click", filterTodo);
 
 // Functions
-function addToDo(event) {
-  // prevent form from submitting
-  event.preventDefault();
+function creatTodoListItem(text, saveToLocalStorage = true) {
   // Todo div
   const todoDiv = document.createElement("div");
   todoDiv.classList.add("todo");
   // Create li
   const newTodo = document.createElement("li");
-  newTodo.innerText = todoInput.value;
+  newTodo.innerText = text;
   newTodo.classList.add("todo-item");
   todoDiv.appendChild(newTodo);
+  //Add todo to local storage
+  if (saveToLocalStorage) {
+    saveLocalTodos(todoInput.value);
+  }
   // Check mark button
   const completedButton = document.createElement("button");
   completedButton.innerHTML = '<i class="fas fa-check"></i>';
@@ -33,6 +36,12 @@ function addToDo(event) {
   todoDiv.appendChild(trashButton);
   // Append to list
   todoList.appendChild(todoDiv);
+}
+
+function addToDo(event) {
+  // prevent form from submitting
+  event.preventDefault();
+  creatTodoListItem(todoInput.value);
   // Clear todo input value
   todoInput.value = "";
 }
@@ -80,5 +89,39 @@ function filterTodo(event) {
         }
         break;
     }
+  });
+}
+
+//When a todo is added to the list, also save it to local storage
+//Local and session storage use JSON
+function saveLocalTodos(todo) {
+  //Check if todo list is already in local storage
+  let todos;
+  //If todo is not already in local storage, assign an empty array to todos
+  if (localStorage.getItem("todos") === null) {
+    todos = [];
+  } else {
+    //If todos already exists in local storage, parse the JSON object into an array and assign it to todos
+    todos = JSON.parse(localStorage.getItem("todos"));
+  }
+  //Add the new todo list item to the todos array
+  todos.push(todo);
+  //Then push todo array to local storage
+  localStorage.setItem("todos", JSON.stringify(todos));
+}
+
+function getTodos() {
+  //Check if todo list is already in local storage
+  let todos;
+  //If todo is not already in local storage, assign an empty array to todos
+  if (localStorage.getItem("todos") === null) {
+    todos = [];
+  } else {
+    //If todos already exists in local storage, parse the JSON object into an array and assign it to todos
+    todos = JSON.parse(localStorage.getItem("todos"));
+  }
+  todos.forEach(function (todo) {
+    //Recreate todo list items from local storage and present them on screen
+    creatTodoListItem(todo, false);
   });
 }
